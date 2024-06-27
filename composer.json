@@ -1,0 +1,25 @@
+{
+  "name": "norquensir/bag",
+  "authors": [
+    {
+      "name": "Norquensi Ricardo",
+      "email": "norquensi@outlook.com"
+    }
+  ],
+  "version": "0.0.1",
+  "require": {
+    "laravel/framework": "^10|^11"
+  },
+  "autoload": {
+    "psr-4": {
+      "Norquensir\\Bag\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Norquensir\\Bag\\BagServiceProvider"
+      ]
+    }
+  }
+}
