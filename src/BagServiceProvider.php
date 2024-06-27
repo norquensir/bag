@@ -23,7 +23,5 @@ class BagServiceProvider extends ServiceProvider
         $this->commands([
             InstallCommand::class,
         ]);
-
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 }
