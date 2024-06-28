@@ -18,18 +18,22 @@ class InstallCommand extends Command
 
     public function handle()
     {
+        $this->checkConfig();
         $this->checkDb();
         $this->moveMigrations();
         $this->runMigrations();
     }
 
-    private function checkDb(): void
+    private function checkConfig(): void
     {
         if (!array_key_exists('bag', Config::get('database.connections'))) {
             $this->alert('BAG: Database connection is not defined');
             exit();
         }
+    }
 
+    private function checkDb(): void
+    {
         $dbSettings = [
             'BAG_DB_HOST',
             'BAG_DB_PORT',
@@ -57,17 +61,24 @@ class InstallCommand extends Command
 
         foreach ($storage->files() as $file) {
             $newFile = Str::of($file)->substrReplace(join('_', [
-                Carbon::today()->format('Y'),
-                Carbon::today()->format('m'),
-                Carbon::today()->format('d')
-            ]), 0, 10);
+                Carbon::now()->format('Y'),
+                Carbon::now()->format('m'),
+                Carbon::now()->format('d'),
+                Carbon::now()->format('H') . Carbon::now()->format('i') . Carbon::now()->format('s'),
+            ]), 0, 16);
 
-            Storage::build([
+            dd($newFile);
+
+            $databaseStorage = Storage::build([
                 'driver' => 'local',
                 'root' => database_path('migrations'),
-            ])->putFileAs('bag', new File($storage->path($file)), $newFile);
+            ]);
 
-            $this->info('Created ' . $newFile);
+            if (!$databaseStorage->exists('/bag/' . $newFile)) {
+                $databaseStorage->putFileAs('bag', new File($storage->path($file)), $newFile);
+
+                $this->info('Created ' . $newFile);
+            }
         }
 
         $this->customAlert('Creating migration files');
@@ -83,6 +94,11 @@ class InstallCommand extends Command
                 '--database' => 'bag',
             ]);
         }
+
+        $this->call('migrate', [
+            '--database' => 'bag',
+            '--path' => Str::remove(base_path(), database_path('migrations/bag')),
+        ]);
 
         $this->customAlert('Running migrations');
     }

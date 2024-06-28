@@ -4,6 +4,7 @@ namespace Norquensir\Bag;
 
 use Illuminate\Support\ServiceProvider;
 use Norquensir\Bag\Console\Commands\InstallCommand;
+use Norquensir\Bag\Console\Commands\UninstallCommand;
 
 class BagServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,7 @@ class BagServiceProvider extends ServiceProvider
     {
         $this->commands([
             InstallCommand::class,
+            UninstallCommand::class,
         ]);
     }
 }
