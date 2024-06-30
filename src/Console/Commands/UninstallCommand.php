@@ -15,33 +15,38 @@ class UninstallCommand extends Command
     public function handle()
     {
         $this->dropTables();
-        $this->removeMigrations();
+        $this->removeFiles();
     }
 
     private function dropTables(): void
     {
         $tables = [
-            'address_boat_spot',
-            'address_names',
-            'addresses',
-            'boat_spots',
-            'building_residential_object',
-            'buildings',
             'files',
             'places',
             'public_spaces',
-            'residential_objects',
+            'addresses',
+            'boat_spots',
             'trailer_spots',
+            'residential_objects',
+            'buildings',
+            'address_boat_spot',
+            'building_residential_object',
+            'address_names',
         ];
 
-        foreach ($tables as $table) {
-            Schema::connection('bag')->drop($table);
+        foreach (array_reverse($tables) as $table) {
+            Schema::connection('bag')->dropIfExists($table);
         }
+
+        Schema::connection('bag')->dropAllTables();
     }
 
     private function removeFiles(): void
     {
-
+        Storage::build([
+            'driver' => 'local',
+            'root' => database_path('migrations'),
+        ])->deleteDirectory('bag');
     }
 
     private function customAlert(string $message): void

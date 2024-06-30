@@ -27,7 +27,12 @@ class InstallCommand extends Command
     private function checkConfig(): void
     {
         if (!array_key_exists('bag', Config::get('database.connections'))) {
-            $this->alert('BAG: Database connection is not defined');
+            $this->customAlert('BAG: Database connection is not defined');
+            exit();
+        }
+
+        if (!array_key_exists('bag', Config::get('filesystems.disks'))) {
+            $this->customAlert('BAG: Storage is not defined');
             exit();
         }
     }
@@ -44,7 +49,7 @@ class InstallCommand extends Command
 
         foreach ($dbSettings as $dbSetting) {
             if (!Env::get($dbSetting)) {
-                $this->alert('BAG: Missing DB setting ' . $dbSetting);
+                $this->customAlert('BAG: Missing DB setting ' . $dbSetting);
                 exit();
             }
         }
@@ -64,20 +69,17 @@ class InstallCommand extends Command
                 Carbon::now()->format('Y'),
                 Carbon::now()->format('m'),
                 Carbon::now()->format('d'),
-                Carbon::now()->format('H') . Carbon::now()->format('i') . Carbon::now()->format('s'),
-            ]), 0, 16);
-
-            dd($newFile);
+            ]), 0, 10);
 
             $databaseStorage = Storage::build([
                 'driver' => 'local',
-                'root' => database_path('migrations'),
+                'root' => database_path('migrations/bag'),
             ]);
 
-            if (!$databaseStorage->exists('/bag/' . $newFile)) {
-                $databaseStorage->putFileAs('bag', new File($storage->path($file)), $newFile);
+            if (!$databaseStorage->exists($file)) {
+                $databaseStorage->putFileAs('/', new File($storage->path($file)), $file);
 
-                $this->info('Created ' . $newFile);
+                $this->info('Created ' . $file);
             }
         }
 
