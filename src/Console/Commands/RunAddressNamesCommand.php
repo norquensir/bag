@@ -3,6 +3,7 @@
 namespace Norquensir\Bag\Console\Commands;
 
 use Illuminate\Console\Command;
+use Norquensir\Bag\Jobs\RunAddressNamesJob;
 
 class RunAddressNamesCommand extends Command
 {
