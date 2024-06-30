@@ -27,5 +27,7 @@ class BagServiceProvider extends ServiceProvider
             UninstallCommand::class,
             RunJobCommand::class,
         ]);
+
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
     }
 }

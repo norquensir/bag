@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Norquensir\Bag\Models\Address;
+use Norquensir\Bag\Models\AddressName;
 
 class RunAddressNamesJob implements ShouldQueue
 {
