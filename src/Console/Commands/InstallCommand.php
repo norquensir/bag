@@ -32,7 +32,7 @@ class InstallCommand extends Command
         }
 
         if (!array_key_exists('bag', Config::get('filesystems.disks'))) {
-            $this->customAlert('BAG: Storage is not defined');
+            $this->customAlert('BAG: Filesystem disk is not defined');
             exit();
         }
     }
@@ -52,6 +52,11 @@ class InstallCommand extends Command
                 $this->customAlert('BAG: Missing DB setting ' . $dbSetting);
                 exit();
             }
+        }
+
+        if (!in_array('jobs', Schema::getTables())) {
+            $this->customAlert('BAG: Missing database table: jobs');
+            exit();
         }
     }
 
