@@ -32,3 +32,13 @@ Example:
 
 After you've configured all necessary settings, you can run the `bag:install` command. This will run the
 migrations you need.
+
+---
+
+### Configuration file
+> Run `php artisan vendor:publish --provider="Norquensir\Bag\BagServiceProvider"` to publish the package
+> config file
+
+In the config file you can set the following keys:
+- routes
+  - middleware: Set which middlewares should be active on all routes

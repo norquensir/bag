@@ -2,6 +2,7 @@
 
 namespace Norquensir\Bag;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Norquensir\Bag\Console\Commands\InstallCommand;
 use Norquensir\Bag\Console\Commands\RunJobCommand;
@@ -28,6 +29,12 @@ class BagServiceProvider extends ServiceProvider
             RunJobCommand::class,
         ]);
 
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->publishes([
+            __DIR__ . '/../config/bag.php' => config_path('bag.php'),
+        ]);
+
+        Route::middleware(config('bag.routes.middleware'))->group(function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        });
     }
 }
