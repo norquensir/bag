@@ -35,7 +35,7 @@ class BagServiceProvider extends ServiceProvider
             __DIR__ . '/../config/bag.php' => config_path('bag.php'),
         ]);
 
-        if (config('bag.routes.on')) {
+        if (config('bag.routes.active')) {
             Route::group([
                 'middleware' => config('bag.routes.middleware'),
                 'prefix' => config('bag.routes.prefix'),

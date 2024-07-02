@@ -2,7 +2,7 @@
 
 return [
     'routes' => [
-        'on' => false,
+        'active' => false,
         'middleware' => ['web'],
         'prefix' => 'bag',
     ],

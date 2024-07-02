@@ -41,4 +41,6 @@ migrations you need.
 
 In the config file you can set the following keys:
 - routes
+  - active: Use standard BAG routes or not
   - middleware: Set which middlewares should be active on all routes
+  - prefix: Set prefix for BAG routes
