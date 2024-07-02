@@ -33,8 +33,13 @@ class BagServiceProvider extends ServiceProvider
             __DIR__ . '/../config/bag.php' => config_path('bag.php'),
         ]);
 
-        Route::middleware(config('bag.routes.middleware'))->group(function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        });
+        if (config('bag.routes.on')) {
+            Route::group([
+                'middleware' => config('bag.routes.middleware'),
+                'prefix' => config('bag.routes.prefix'),
+            ], function () {
+                $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+            });
+        }
     }
 }
