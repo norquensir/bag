@@ -5,7 +5,6 @@ namespace Norquensir\Bag;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Norquensir\Bag\Console\Commands\InstallCommand;
-use Norquensir\Bag\Console\Commands\RunAddressNamesCommand;
 use Norquensir\Bag\Console\Commands\RunJobCommand;
 use Norquensir\Bag\Console\Commands\UninstallCommand;
 
@@ -28,7 +27,14 @@ class BagServiceProvider extends ServiceProvider
             InstallCommand::class,
             UninstallCommand::class,
             RunJobCommand::class,
-            RunAddressNamesCommand::class,
         ]);
+
+        $this->publishes([
+            __DIR__ . '/../config/bag.php' => config_path('bag.php'),
+        ]);
+
+        Route::middleware(config('bag.routes.middleware'))->group(function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        });
     }
 }
