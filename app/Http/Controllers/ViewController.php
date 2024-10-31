@@ -13,22 +13,14 @@ class ViewController extends Controller
         $rows = Address::query()->select('postal')->distinct()->get();
         $postals = [];
 
-        foreach ($rows as $row) {
-            $postal = Address::query()->with('publicSpace.place')->where('postal', $row->postal)->first();
-
-            $postals[] = [
-                'postal' => $postal->postal,
-                'street_name' => $postal->publicSpace->name,
-                'city' => $postal->publicSpace->place->name,
-            ];
-        }
-
         $file = fopen(Storage::disk('public')->path('test.csv'), 'w');
 
         fputcsv($file, ['Postcode', 'Straatnaam', 'Plaatsnaam']);
 
-        foreach ($postals as $postal) {
-            fputcsv($file, [$postal['postal'], $postal['street_name'], $postal['city']]);
+        foreach ($rows as $row) {
+            $address = Address::query()->with('publicSpace.place')->where('postal', $row->postal)->first();
+
+            fputcsv($file, [$address->postal, $address->publicSpace->name, $address->publicSpace->place->name]);
         }
 
         fclose($file);
