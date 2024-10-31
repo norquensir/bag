@@ -10,7 +10,7 @@ class ViewController extends Controller
 {
     public function postals()
     {
-        $rows = Address::query()->select('postal')->distinct()->limit(100)->get();
+        $rows = Address::query()->select('postal')->distinct()->get();
         $postals = [];
 
         foreach ($rows as $row) {
