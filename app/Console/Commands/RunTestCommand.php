@@ -4,6 +4,9 @@ namespace App\Console\Commands;
 
 use App\Models\Address;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use function Laravel\Prompts\spin;
 
 class RunTestCommand extends Command
 {
@@ -13,8 +16,23 @@ class RunTestCommand extends Command
 
     public function handle()
     {
-        $test = Address::query()->select('postal')->distinct()->get();
+        $rows = spin(
+            callback: fn () => Address::query()->select('postal')->distinct()->get(),
+            message: 'Fetching postals...',
+        );
 
-        dd($test->pluck('postal'));
+        $file = fopen(Storage::disk('public')->path('adressen.csv'), 'w');
+
+        fputcsv($file, ['Postcode', 'Straatnaam', 'Plaatsnaam']);
+
+        foreach ($rows as $row) {
+            $this->info(Carbon::now()->format('His') . ' | Processsing postal ' . $row->postal);
+
+            $address = Address::query()->with('publicSpace.place')->where('postal', $row->postal)->first();
+
+            fputcsv($file, [$address->postal, $address->publicSpace->name, $address->publicSpace->place->name]);
+        }
+
+        fclose($file);
     }
 }
