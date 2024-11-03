@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\RunAddressNamesJob;
 use Illuminate\Console\Command;
+use function Laravel\Prompts\error;
 
 class RunAddressNamesCommand extends Command
 {
@@ -14,7 +15,7 @@ class RunAddressNamesCommand extends Command
     public function handle()
     {
         if (empty($this->option('type'))) {
-            $this->error('--type is required');
+            error('--type is required');
             exit();
         }
 
@@ -22,7 +23,7 @@ class RunAddressNamesCommand extends Command
         if (in_array($this->option('type'), $correctTypes)) {
             RunAddressNamesJob::dispatch($this->option('type'));
         } else {
-            $this->error('Incorrect command type');
+            error('Incorrect command type');
         }
     }
 }

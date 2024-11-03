@@ -13,10 +13,7 @@ class IdentifierController extends Controller
     {
         if (preg_match('/^[0-9]{4}01[0-9]{10}$/', $identifier)) {
             $residentialObject = ResidentialObject::query()
-                ->with([
-                    'address.publicSpace.place',
-                    'buildings',
-                ])
+                ->with(['address.publicSpace.place', 'buildings'])
                 ->where('identifier', $identifier)
                 ->orderByDesc('id')
                 ->first();

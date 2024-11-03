@@ -51,8 +51,14 @@ class Address extends Model
     {
         $fullStreet = $this->publicSpace->name;
         $fullStreet .= ' ' . $this->street_number;
-        $fullStreet .= $this->street_number_ext;
-        $fullStreet .= is_numeric($this->street_number_add) ? '-' . $this->street_number_add : ' ' . $this->street_number_add;
+
+        if (!empty($this->street_number_ext)) {
+            $fullStreet .= $this->street_number_ext;
+        }
+
+        if (!empty($this->street_number_add)) {
+            $fullStreet .= is_numeric($this->street_number_add) ? '-' . $this->street_number_add : ' ' . $this->street_number_add;
+        }
 
         return trim($fullStreet);
     }

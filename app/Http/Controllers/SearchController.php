@@ -29,19 +29,14 @@ class SearchController extends Controller
             $addressNameQuery = AddressName::query()
                 ->whereFullText(
                     $request->get('type'),
-                    Str::of('":search:"')
-                        ->replace(':search:', $request->get('search'))
-                        ->replace(' ', '%'),
+                    Str::of('":search"')->replace(':search', $request->get('search'))->replace(' ', '%'),
                 );
         }
 
         if ($addressNameQuery->count() == 1) {
             $address = $addressNameQuery->first()
                 ->address()
-                ->with([
-                    'publicSpace.place',
-                    'residentialObject.buildings',
-                ])
+                ->with(['publicSpace.place', 'residentialObject.buildings'])
                 ->first();
 
             return response([
@@ -67,10 +62,7 @@ class SearchController extends Controller
             $results = [];
             foreach ($addressNameQuery->get() as $addressName) {
                 $address = $addressName->address()
-                    ->with([
-                        'publicSpace.place',
-                        'residentialObject.buildings',
-                    ])
+                    ->with(['publicSpace.place', 'residentialObject.buildings'])
                     ->first();
 
                 $results[] = [

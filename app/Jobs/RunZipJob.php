@@ -34,33 +34,26 @@ class RunZipJob implements ShouldQueue
             $unzipPath = null;
 
             if ($file) {
-                if ($zip->open(Storage::path($file->path)) === true) {
-                    $tmpPath = Str::of(':current:/tmp')
-                        ->replace(':current:', Str::beforeLast($file->path, '/'));
+                $tmpPath = join('/', [$file->uuid, 'tmp']);
 
+                if ($zip->open(Storage::path($file->path)) === true) {
                     for ($i = 0; $i < $zip->numFiles; $i++) {
                         $fileName = $zip->statIndex($i)['name'];
 
                         if (preg_match('/[0-9]{4}(' . $this->type . ')[0-9]{8}/', $fileName)) {
                             $zip->extractTo(Storage::path($tmpPath), $fileName);
 
-                            $unzipPath = Str::of(':path:/:file:')
-                                ->replace(':path:', $tmpPath)
-                                ->replace(':file:', $fileName);
+                            $unzipPath = join('/', [$tmpPath, $fileName]);
                         }
                     }
                 }
 
                 if ($zip->open(Storage::path($unzipPath)) === true) {
-                    $tmpPath = Str::of(':current:/tmp')
-                        ->replace(':current:', Str::beforeLast($file->path, '/'));
                     $extractFiles = collect();
 
                     for ($i = 0; $i < $zip->numFiles; $i++) {
                         $fileName = $zip->statIndex($i)['name'];
-                        $filePath = Str::of(':tmp:/:file:')
-                            ->replace(':tmp:', $tmpPath)
-                            ->replace(':file:', $fileName);
+                        $filePath = join('/', [$tmpPath, $fileName]);
 
                         if (!preg_match('/[0-9]{4}[A-Z]{3}[0-9]{8}/', $fileName)) {
                             continue;
@@ -74,10 +67,8 @@ class RunZipJob implements ShouldQueue
                     if ($extractFiles->isNotEmpty()) {
                         $zip->extractTo(Storage::path($tmpPath), $extractFiles->toArray());
 
-                        $extractFiles->map(function ($extractFile) use ($tmpPath) {
-                            $extractFilePath = Str::of(':tmp:/:file:')
-                                ->replace(':tmp:', $tmpPath)
-                                ->replace(':file:', $extractFile);
+                        foreach ($extractFiles as $extractFile) {
+                            $extractFilePath = join('/', [$tmpPath, $extractFile]);
 
                             if (File::query()->where('path', $extractFilePath)->doesntExist()) {
                                 $innerFile = new File;
@@ -87,7 +78,7 @@ class RunZipJob implements ShouldQueue
                                 $innerFile->type = $this->type;
                                 $innerFile->save();
                             }
-                        });
+                        }
                     }
                 }
 
@@ -95,13 +86,10 @@ class RunZipJob implements ShouldQueue
             }
         });
 
-        $processFiles = File::query()
-            ->where('extension', 'xml')
-            ->where('type', $this->type)
-            ->get();
+        $processFiles = File::query()->where('extension', 'xml')->where('type', $this->type)->get();
 
         foreach ($processFiles as $processFile) {
-            RunProcessJob::dispatch($processFile, $processFiles->last()->uuid == $processFile->uuid, $this->once);
+            RunProcessJob::dispatch($processFile, $this->once, $processFiles->last()->uuid == $processFile->uuid);
         }
     }
 }

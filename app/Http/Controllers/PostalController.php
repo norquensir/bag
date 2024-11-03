@@ -40,10 +40,7 @@ class PostalController extends Controller
 
         if (array_keys($address) == ['postal', 'street_number']) {
             $address = Address::query()
-                ->with([
-                    'publicSpace.place',
-                    'residentialObject.buildings',
-                ])
+                ->with(['publicSpace.place', 'residentialObject.buildings'])
                 ->where('postal', $address['postal'])
                 ->where('street_number', $address['street_number'])
                 ->whereNull('street_number_ext')
@@ -51,10 +48,7 @@ class PostalController extends Controller
                 ->first();
         } elseif (array_keys($address) == ['postal', 'street_number', 'street_number_ext']) {
             $address = Address::query()
-                ->with([
-                    'publicSpace.place',
-                    'residentialObject.buildings',
-                ])
+                ->with(['publicSpace.place', 'residentialObject.buildings'])
                 ->where('postal', $address['postal'])
                 ->where('street_number', $address['street_number'])
                 ->where('street_number_ext', $address['street_number_ext'])
@@ -62,10 +56,7 @@ class PostalController extends Controller
                 ->first();
         } elseif (array_keys($address) == ['postal', 'street_number', 'street_number_add']) {
             $address = Address::query()
-                ->with([
-                    'publicSpace.place',
-                    'residentialObject.buildings',
-                ])
+                ->with(['publicSpace.place', 'residentialObject.buildings'])
                 ->where('postal', $address['postal'])
                 ->where('street_number', $address['street_number'])
                 ->whereNull('street_number_ext')
@@ -73,10 +64,7 @@ class PostalController extends Controller
                 ->first();
         } elseif (array_keys($address) == ['postal', 'street_number', 'street_number_ext', 'street_number_add']) {
             $address = Address::query()
-                ->with([
-                    'publicSpace.place',
-                    'residentialObject.buildings',
-                ])
+                ->with(['publicSpace.place', 'residentialObject.buildings'])
                 ->where('postal', $address['postal'])
                 ->where('street_number', $address['street_number'])
                 ->where('street_number_ext', $address['street_number_ext'])

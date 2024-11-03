@@ -11,6 +11,8 @@ class RunAddressNamesJob implements ShouldQueue
 {
     use Queueable;
 
+    public int $timeout = 0;
+
     public string $type;
 
     public function __construct(string $type)
@@ -21,7 +23,7 @@ class RunAddressNamesJob implements ShouldQueue
     public function handle(): void
     {
         if ($this->type == 'create') {
-            foreach (Address::all() as $address) {
+            foreach (Address::query()->lazy() as $address) {
                 if (AddressName::query()->where('address_id', $address->id)->doesntExist()) {
                     $addressName = new AddressName;
                     $addressName->name = $address->name;

@@ -25,9 +25,9 @@ class RunProcessJob implements ShouldQueue
 
     public File $file;
 
-    public bool $last;
-
     public bool $once;
+
+    public bool $last;
 
     public array $types = [
         'WPL',
@@ -42,37 +42,52 @@ class RunProcessJob implements ShouldQueue
     public function __construct($file, $once, $last)
     {
         $this->file = $file;
-        $this->last = $last;
         $this->once = $once;
+        $this->last = $last;
     }
 
     public function handle(): void
     {
         DB::transaction(function () {
-            $bagType = Str::afterLast($this->file->path, '/');
+            switch ($this->file->type) {
+                case 'WPL':
+                    $this->places($this->file);
+                    break;
 
-            if (preg_match('/[0-9]{4}(WPL)[0-9]{8}/', $bagType)) {
-                $this->places($this->file);
-            } elseif (preg_match('/[0-9]{4}(OPR)[0-9]{8}/', $bagType)) {
-                $this->public_spaces($this->file);
-            } elseif (preg_match('/[0-9]{4}(NUM)[0-9]{8}/', $bagType)) {
-                $this->addresses($this->file);
-            } elseif (preg_match('/[0-9]{4}(LIG)[0-9]{8}/', $bagType)) {
-                $this->boat_spots($this->file);
-            } elseif (preg_match('/[0-9]{4}(STA)[0-9]{8}/', $bagType)) {
-                $this->trailer_spots($this->file);
-            } elseif (preg_match('/[0-9]{4}(PND)[0-9]{8}/', $bagType)) {
-                $this->buildings($this->file);
-            } elseif (preg_match('/[0-9]{4}(VBO)[0-9]{8}/', $bagType)) {
-                $this->residential_objects($this->file);
-            } else {
-                throw new \Exception('BagType is not valid.');
+                case 'OPR':
+                    $this->public_spaces($this->file);
+                    break;
+
+                case 'NUM':
+                    $this->addresses($this->file);
+                    break;
+
+                case 'LIG':
+                    $this->boat_spots($this->file);
+                    break;
+
+                case 'STA':
+                    $this->trailer_spots($this->file);
+                    break;
+
+                case 'PND':
+                    $this->buildings($this->file);
+                    break;
+
+                case 'VBO':
+                    $this->residential_objects($this->file);
+                    break;
+
+                default:
+                    throw new \Exception('BagType is not valid.');
             }
         });
 
         if (!$this->once) {
-            if ($this->last && array_key_exists(array_search($this->file->type, $this->types) + 1, $this->types)) {
-                RunZipJob::dispatch($this->types[array_search($this->file->type, $this->types) + 1]);
+            $lastKey = array_search($this->file->type, $this->types) + 1;
+
+            if ($this->last && array_key_exists($lastKey, $this->types)) {
+                RunZipJob::dispatch($this->types[$lastKey]);
             }
         }
     }

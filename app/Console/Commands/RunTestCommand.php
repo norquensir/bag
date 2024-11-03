@@ -16,6 +16,11 @@ class RunTestCommand extends Command
 
     public function handle()
     {
+        $this->processing();
+    }
+
+    private function processing(): void
+    {
         $rows = spin(
             callback: fn () => Address::query()->select('postal')->distinct()->get(),
             message: 'Fetching postals...',

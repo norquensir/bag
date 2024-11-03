@@ -26,16 +26,13 @@ class RunDownloadJob implements ShouldQueue
     {
         DB::transaction(function () {
             $downloadUrl = 'https://service.pdok.nl/kadaster/adressen/atom/v1_0/downloads/lvbag-extract-nl.zip';
-            $directoryName = Str::uuid();
+            $fileUuid = Str::uuid();
 
-            if (!Storage::exists($directoryName)) {
-                Storage::makeDirectory($directoryName);
+            if (!Storage::exists($fileUuid)) {
+                Storage::makeDirectory($fileUuid);
             }
 
-            $filePath = Str::of('/:directory:/:name:.zip')
-                ->replace(':directory:', $directoryName)
-                ->replace(':name:', Str::random(40));
-
+            $filePath = Str::replace(':directory', $fileUuid, '/:directory/lvbag-extract-nl.zip');
             $client = new Client;
 
             $client->get($downloadUrl, [
@@ -43,7 +40,7 @@ class RunDownloadJob implements ShouldQueue
             ]);
 
             $file = new File;
-            $file->uuid = Str::uuid();
+            $file->uuid = $fileUuid;
             $file->path = $filePath;
             $file->extension = 'zip';
             $file->save();

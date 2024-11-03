@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\RunDownloadJob;
+use App\Jobs\RunZipJob;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
+use function Laravel\Prompts\error;
 
 class RunJobCommand extends Command
 {
@@ -13,50 +15,43 @@ class RunJobCommand extends Command
 
     protected $description = 'Run a job from command line';
 
-    public array $allowedJobs = [
-        'RunDownloadJob.php',
-        'RunZipJob.php',
-    ];
-
     public function handle()
     {
-        $jobFiles = [];
+        $allowedJobs = [
+            'RunDownloadJob.php',
+            'RunZipJob.php',
+        ];
 
-        $storage = Storage::build([
-            'driver' => 'local',
-            'root' => __DIR__ . '/../../Jobs',
-        ]);
-
-        foreach ($storage->files() as $storageFile) {
-            if (in_array($storageFile, $this->allowedJobs)) {
-                $jobFiles[] = $storageFile;
-            }
-        }
-
-        $jobFile = select(
+        $chosenJob = select(
             label: 'What job do you want to run?',
-            options: $jobFiles,
+            options: $allowedJobs,
         );
 
-        $job = Str::replace(':class:', Str::remove('.php', $jobFile), 'App\Jobs\:class:');
+        switch ($chosenJob) {
+            case 'RunDownloadJob.php':
+                RunDownloadJob::dispatch();
+                break;
 
-        if ($jobFile == 'RunZipJob.php') {
-            $type = select(
-                label: '',
-                options: [
-                    'WPL' => 'places',
-                    'OPR' => 'public_spaces',
-                    'NUM' => 'addresses',
-                    'LIG' => 'boat_spots',
-                    'STA' => 'trailer_spots',
-                    'PND' => 'buildings',
-                    'VBO' => 'residential_objects',
-                ],
-            );
+                case 'RunZipJob.php':
+                    $type = select(
+                        label: '',
+                        options: [
+                            'WPL' => 'places',
+                            'OPR' => 'public_spaces',
+                            'NUM' => 'addresses',
+                            'LIG' => 'boat_spots',
+                            'STA' => 'trailer_spots',
+                            'PND' => 'buildings',
+                            'VBO' => 'residential_objects',
+                        ],
+                    );
+                    $runOnce = confirm('Do you want to run this job once?');
 
-            dispatch(new $job($type, true));
-        } else {
-            dispatch(new $job);
+                    RunZipJob::dispatch($type, $runOnce);
+                    break;
+
+            default:
+                error('Invalid job');
         }
     }
 }
