@@ -18,6 +18,8 @@ class RunAddressNamesJob implements ShouldQueue
     public function __construct(string $type)
     {
         $this->type = $type;
+
+        $this->onQueue('processing');
     }
 
     public function handle(): void

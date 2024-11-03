@@ -32,7 +32,7 @@ class RunDownloadJob implements ShouldQueue
                 Storage::makeDirectory($fileUuid);
             }
 
-            $filePath = Str::replace(':directory', $fileUuid, '/:directory/lvbag-extract-nl.zip');
+            $filePath = join('/', [$fileUuid, 'lvbag-extract-nl.zip']);
             $client = new Client;
 
             $client->get($downloadUrl, [

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\RunAddressNamesJob;
 use App\Jobs\RunDownloadJob;
 use App\Jobs\RunZipJob;
 use Illuminate\Console\Command;
@@ -20,6 +21,7 @@ class RunJobCommand extends Command
         $allowedJobs = [
             'RunDownloadJob.php',
             'RunZipJob.php',
+            'RunAddressNamesJob.php',
         ];
 
         $chosenJob = select(
@@ -32,23 +34,35 @@ class RunJobCommand extends Command
                 RunDownloadJob::dispatch();
                 break;
 
-                case 'RunZipJob.php':
-                    $type = select(
-                        label: '',
-                        options: [
-                            'WPL' => 'places',
-                            'OPR' => 'public_spaces',
-                            'NUM' => 'addresses',
-                            'LIG' => 'boat_spots',
-                            'STA' => 'trailer_spots',
-                            'PND' => 'buildings',
-                            'VBO' => 'residential_objects',
-                        ],
-                    );
-                    $runOnce = confirm('Do you want to run this job once?');
+            case 'RunZipJob.php':
+                $type = select(
+                    label: 'Which file do you want to unzip?',
+                    options: [
+                        'WPL' => 'places',
+                        'OPR' => 'public_spaces',
+                        'NUM' => 'addresses',
+                        'LIG' => 'boat_spots',
+                        'STA' => 'trailer_spots',
+                        'PND' => 'buildings',
+                        'VBO' => 'residential_objects',
+                    ],
+                );
+                $runOnce = confirm('Do you want to run this job once?');
 
-                    RunZipJob::dispatch($type, $runOnce);
-                    break;
+                RunZipJob::dispatch($type, $runOnce);
+                break;
+
+            case 'RunAddressNamesJob.php':
+                $type = select(
+                    label: 'Which type do you want to run?',
+                    options: [
+                        'create',
+                        'delete',
+                    ],
+                );
+
+                RunAddressNamesJob::dispatch($type);
+                break;
 
             default:
                 error('Invalid job');
