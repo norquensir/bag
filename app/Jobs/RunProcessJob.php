@@ -326,7 +326,6 @@ class RunProcessJob implements ShouldQueue
 
                 if ($positions) {
                     $coordinates = Str::of($positions)->explode(' ');
-
                     $residentialObject->latitude = $coordinates[0];
                     $residentialObject->longitude = $coordinates[1];
                 }

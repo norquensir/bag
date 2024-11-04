@@ -32,7 +32,7 @@ class PostalController extends Controller
             }
 
             if ($field == 'postal') {
-                $address[$field] = Str::of($request->get('postal'))->replace(' ', '')->toString();
+                $address[$field] = Str::replace(' ', '', $request->get('postal'));
             } else {
                 $address[$field] = $request->get($field);
             }
