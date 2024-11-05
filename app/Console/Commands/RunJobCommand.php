@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\RunAddressNamesJob;
 use App\Jobs\RunDownloadJob;
+use App\Jobs\RunViewJob;
 use App\Jobs\RunZipJob;
 use Illuminate\Console\Command;
 use function Laravel\Prompts\confirm;
@@ -18,23 +19,22 @@ class RunJobCommand extends Command
 
     public function handle()
     {
-        $allowedJobs = [
-            'RunDownloadJob.php',
-            'RunZipJob.php',
-            'RunAddressNamesJob.php',
-        ];
-
         $chosenJob = select(
             label: 'What job do you want to run?',
-            options: $allowedJobs,
+            options: [
+                'RunDownloadJob',
+                'RunZipJob',
+                'RunAddressNamesJob',
+                'RunViewJob',
+            ],
         );
 
         switch ($chosenJob) {
-            case 'RunDownloadJob.php':
+            case 'RunDownloadJob':
                 RunDownloadJob::dispatch();
                 break;
 
-            case 'RunZipJob.php':
+            case 'RunZipJob':
                 $type = select(
                     label: 'Which file do you want to unzip?',
                     options: [
@@ -52,7 +52,7 @@ class RunJobCommand extends Command
                 RunZipJob::dispatch($type, $runOnce);
                 break;
 
-            case 'RunAddressNamesJob.php':
+            case 'RunAddressNamesJob':
                 $type = select(
                     label: 'Which type do you want to run?',
                     options: [
@@ -62,6 +62,10 @@ class RunJobCommand extends Command
                 );
 
                 RunAddressNamesJob::dispatch($type);
+                break;
+
+            case 'RunViewJob':
+                RunViewJob::dispatch();
                 break;
 
             default:
