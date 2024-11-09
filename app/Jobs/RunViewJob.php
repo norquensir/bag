@@ -23,6 +23,8 @@ class RunViewJob implements ShouldQueue
 
     public function handle(): void
     {
+        ini_set('memory_limit', '-1');
+
         foreach (File::query()->where('extension', 'zip')->whereNull('type')->get() as $file) {
             $zip = new ZipArchive();
             if ($zip->open(Storage::path($file->path)) === true) {
