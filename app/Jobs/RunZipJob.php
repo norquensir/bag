@@ -14,8 +14,6 @@ class RunZipJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $timeout = 0;
-
     public string $type;
 
     public bool $once;
@@ -46,6 +44,8 @@ class RunZipJob implements ShouldQueue
                             $unzipPath = join('/', [$tmpPath, $fileName]);
                         }
                     }
+
+                    $zip->close();
                 }
 
                 if ($zip->open(Storage::path($unzipPath)) === true) {
@@ -80,6 +80,8 @@ class RunZipJob implements ShouldQueue
                             }
                         }
                     }
+
+                    $zip->close();
                 }
 
                 Storage::delete($unzipPath);

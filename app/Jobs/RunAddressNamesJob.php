@@ -11,8 +11,6 @@ class RunAddressNamesJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $timeout = 0;
-
     public string $type;
 
     public function __construct(string $type)

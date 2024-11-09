@@ -3,19 +3,23 @@
 namespace App\Jobs;
 
 use App\Models\File;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Saloon\XmlWrangler\XmlReader;
+use ZipArchive;
 
 class RunDownloadJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $timeout = 0;
+    public bool $runZip = false;
 
     public function __construct()
     {
@@ -39,14 +43,35 @@ class RunDownloadJob implements ShouldQueue
                 'sink' => Storage::path($filePath),
             ]);
 
-            $file = new File;
-            $file->uuid = $fileUuid;
-            $file->path = $filePath;
-            $file->extension = 'zip';
-            $file->save();
+            $zip = new ZipArchive();
+            if ($zip->open(Storage::path($filePath)) === true) {
+                $date = XmlReader::fromString($zip->getFromName('Leveringsdocument-BAG-Extract.xml'))
+                    ->value('selecties-extract:StandTechnischeDatum')
+                    ->first();
+
+                $zip->close();
+            }
+
+            if (empty($date)) {
+                Storage::deleteDirectory($fileUuid);
+
+                throw new Exception('Date is empty');
+            } elseif (Carbon::parse($date)->isLastMonth()) {
+                Storage::deleteDirectory($fileUuid);
+
+                self::dispatch()->delay(Carbon::now()->addHour());
+            } else {
+                $file = new File;
+                $file->uuid = $fileUuid;
+                $file->path = $filePath;
+                $file->extension = 'zip';
+                $file->save();
+
+                $this->runZip = true;
+            }
         });
 
-        if (App::isProduction()) {
+        if ($this->runZip && App::isProduction()) {
             RunZipJob::dispatch('WPL');
         }
     }
