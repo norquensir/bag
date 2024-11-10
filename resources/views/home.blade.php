@@ -13,6 +13,8 @@
 </head>
 <body>
 <div id="page" class="p-5">
+    <h1 class="mb-3 font-bold text-lg">CSV-bestanden</h1>
+
     <div class="flex gap-3 flex-col">
         @foreach($files as $file)
             <div class="bg-white border-2 border-black rounded p-5 flex flex-col">
