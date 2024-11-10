@@ -65,6 +65,7 @@ class RunDownloadJob implements ShouldQueue
                 $file->uuid = $fileUuid;
                 $file->path = $filePath;
                 $file->extension = 'zip';
+                $file->created_at = Carbon::parse($date);
                 $file->save();
 
                 $this->runZip = true;
