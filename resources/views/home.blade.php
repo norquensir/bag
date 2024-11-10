@@ -13,14 +13,16 @@
 </head>
 <body>
 <div id="page" class="p-5">
-    @foreach($files as $file)
-        <div class="bg-white border-2 border-black rounded p-5 flex flex-col">
-            <span class="font-semibold">Postcode - Straatnaam - Plaatsnaam</span>
-            <span class="font-light italic">{{ $file->created_at->translatedFormat('F Y') }}</span>
+    <div class="flex gap-3 flex-col">
+        @foreach($files as $file)
+            <div class="bg-white border-2 border-black rounded p-5 flex flex-col">
+                <span class="font-semibold">Postcode - Straatnaam - Plaatsnaam</span>
+                <span class="font-light italic">{{ $file->created_at->translatedFormat('F Y') }}</span>
 
-            <a href="{{ route('files.download', $file) }}" class="mt-5 font-bold self-start underline">Downloaden</a>
-        </div>
-    @endforeach
+                <a href="{{ route('files.download', $file) }}" class="mt-5 font-bold self-start underline">Downloaden</a>
+            </div>
+        @endforeach
+    </div>
 </div>
 </body>
 </html>

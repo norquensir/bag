@@ -36,7 +36,8 @@ class RunViewJob implements ShouldQueue
             }
 
             if (!empty($date)) {
-                $fileName = join('_', [Carbon::parse($date)->format('mY'), 'adressen.csv']);
+                $parsedDate = Carbon::parse($date);
+                $fileName = join('_', [$parsedDate->format('mY'), 'adressen.csv']);
 
                 if (File::query()->where('path', $fileName)->doesntExist()) {
                     $rows = Address::query()->select('postal')->distinct()->get();
@@ -57,6 +58,7 @@ class RunViewJob implements ShouldQueue
                     $file->path = $fileName;
                     $file->extension = 'csv';
                     $file->type = null;
+                    $file->created_at = $parsedDate;
                     $file->save();
                 }
             }

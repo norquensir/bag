@@ -13,7 +13,7 @@ class HomeController extends Controller
         Carbon::setlocale('nl');
 
         return view('home')->with([
-            'files' => File::query()->where('extension', 'csv')->get(),
+            'files' => File::query()->where('extension', 'csv')->latest()->get(),
         ]);
     }
 }
